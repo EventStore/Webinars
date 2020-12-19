@@ -40,11 +40,11 @@ namespace EventSourcing.Infrastructure {
             }
         }
 
-        public async Task<T> Load<T>(string id) where T : Aggregate {
+        public async Task<T> Load<T>(string id) where T : Aggregate, new() {
             if (id == null) throw new ArgumentNullException(nameof(id));
 
             var stream    = GetStreamName<T>(id);
-            var aggregate = (T) Activator.CreateInstance(typeof(T), true);
+            var aggregate = new T();
 
             var read           = _client.ReadStreamAsync(Direction.Forwards, stream, StreamPosition.Start);
             var resolvedEvents = await read.ToArrayAsync();

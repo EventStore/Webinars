@@ -18,11 +18,11 @@ namespace EventSourcing.Lib {
         protected void AddChange(object evt) => _changes.Add(evt);
         
         protected void EnsureDoesntExist() {
-            if (Version > -1) throw new DomainException($"Booking already exists: {GetId()}");
+            if (Version > -1) throw new DomainException($"{GetType().Name} already exists: {GetId()}");
         }
         
         protected void EnsureExists() {
-            if (Version == -1) throw new DomainException($"Booking doesn't exist: {GetId()}");
+            if (Version == -1) throw new DomainException($"{GetType().Name} doesn't exist: {GetId()}");
         }
     }
     
