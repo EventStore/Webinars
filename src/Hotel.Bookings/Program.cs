@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 
-namespace EventSourcing {
+namespace Hotel.Bookings {
     public static class Program {
         public static async Task<int> Main(string[] args) {
             Log.Logger = new LoggerConfiguration()

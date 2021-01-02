@@ -1,7 +1,7 @@
 using System.Linq;
 using EventSourcing.Lib;
 
-namespace EventSourcing.Domain {
+namespace Hotel.Bookings.Domain {
     public record Money {
         public double Amount   { get; internal init; }
         public string Currency { get; internal init; }

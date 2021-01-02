@@ -1,5 +1,5 @@
 using EventSourcing.Lib;
 
-namespace EventSourcing.Domain.Bookings {
+namespace Hotel.Bookings.Domain.Bookings {
     public record BookingId(string Value) : AggregateId(Value) { }
 }

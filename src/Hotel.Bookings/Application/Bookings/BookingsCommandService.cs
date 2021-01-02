@@ -1,12 +1,10 @@
-using System;
-using EventSourcing.Domain;
-using EventSourcing.Domain.Bookings;
 using EventSourcing.Lib;
-using static EventSourcing.Domain.Services;
+using Hotel.Bookings.Domain;
+using Hotel.Bookings.Domain.Bookings;
+using static Hotel.Bookings.Domain.Services;
 
-namespace EventSourcing.Application.Bookings {
-    public class BookingsCommandService : ApplicationService<Booking, BookingState, BookingId> {
-
+namespace Hotel.Bookings.Application.Bookings {
+    public class BookingsCommandService : ApplicationService<Booking, BookingId, BookingState> {
         public BookingsCommandService(IAggregateStore store, IsRoomAvailable isRoomAvailable, ConvertCurrency convertCurrency) : base(store) {
             OnNew<BookingCommands.Book>(
                 (booking, cmd) =>
@@ -22,9 +20,14 @@ namespace EventSourcing.Application.Bookings {
                     )
             );
 
-            OnExisting<BookingCommands.Pay>(
+            OnExisting<BookingCommands.RecordPayment>(
                 cmd => new BookingId(cmd.BookingId),
-                (booking, cmd) => booking.RecordPayment(cmd.Paid)
+                (booking, cmd) => booking.RecordPayment(
+                    new Money(cmd.Amount, cmd.Currency),
+                    convertCurrency,
+                    cmd.PaidBy,
+                    cmd.PaidAt
+                )
             );
         }
     }

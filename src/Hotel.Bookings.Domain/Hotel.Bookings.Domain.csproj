@@ -8,4 +8,9 @@
     <ProjectReference Include="..\EventSourcing.Lib\EventSourcing.Lib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Bookings\BookingEvents.cs" />
+    <Compile Remove="Bookings\BookingEventsOld.cs" />
+  </ItemGroup>
+
 </Project>

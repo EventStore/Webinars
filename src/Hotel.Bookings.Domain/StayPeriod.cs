@@ -1,7 +1,7 @@
 using System;
 using EventSourcing.Lib;
 
-namespace EventSourcing.Domain {
+namespace Hotel.Bookings.Domain {
     public record StayPeriod {
         public DateTimeOffset CheckIn  { get; }
         public DateTimeOffset CheckOut { get; }

@@ -1,52 +1,20 @@
-using System.Collections.Generic;
-using System.Linq;
+// ReSharper disable ReturnTypeCanBeEnumerable.Global
 
 namespace EventSourcing.Lib {
-    public abstract class Aggregate {
-        public IReadOnlyCollection<object> Changes => _changes.AsReadOnly();
+    public abstract class Aggregate<TId, TState> where TId : AggregateId where TState : AggregateState<TId> {
+        public TState State { get; set; }
 
-        public void ClearChanges() => _changes.Clear();
+        protected void ChangeState(TState state)
+            => State = state with {
+                Version = State.Version + 1
+            };
 
-        public int Version { get; protected set; } = -1;
-
-        readonly List<object> _changes = new();
-        
-        public abstract void Load(IEnumerable<object> events);
-
-        public abstract string GetId();
-
-        protected void AddChange(object evt) => _changes.Add(evt);
-        
-        protected void EnsureDoesntExist() {
-            if (Version > -1) throw new DomainException($"{GetType().Name} already exists: {GetId()}");
-        }
-        
         protected void EnsureExists() {
-            if (Version == -1) throw new DomainException($"{GetType().Name} doesn't exist: {GetId()}");
-        }
-    }
-    
-    public abstract class Aggregate<T> : Aggregate where T : AggregateState<T>, new() {
-        protected void Apply(object evt) {
-            AddChange(evt);
-            State = State.When(evt);
+            if (State.Version < 0) throw new DomainException($"{GetType().Name} {State.Id} doesn't exist");
         }
 
-        public override void Load(IEnumerable<object> events) {
-            State = events.Aggregate(new T(), Fold);
-
-            T Fold(T state, object evt) {
-                Version++;
-                return state.When(evt);
-            }
+        protected void EnsureDoesntExist() {
+            if (State.Version > -1) throw new DomainException($"{GetType().Name} {State.Id} already exist");
         }
-
-        public T State { get; private set; }
-    }
-    
-    public abstract class Aggregate<T, TId> : Aggregate<T>
-        where T : AggregateState<T, TId>, new() 
-        where TId : AggregateId {
-        public override string GetId() => State.Id;
     }
 }

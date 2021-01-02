@@ -13,8 +13,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EventSourcing.Domain\EventSourcing.Domain.csproj" />
       <ProjectReference Include="..\EventSourcing.Lib\EventSourcing.Lib.csproj" />
+      <ProjectReference Include="..\Hotel.Bookings.Domain\Hotel.Bookings.Domain.csproj" />
+      <ProjectReference Include="..\MongoTools\MongoTools.csproj" />
     </ItemGroup>
 
 </Project>

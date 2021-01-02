@@ -1,11 +1,5 @@
 namespace EventSourcing.Lib {
-    public abstract record AggregateState<T> where T : AggregateState<T> {
-        public abstract T When(object @event);
-    }
-    
-    public abstract record AggregateState<T, TId> : AggregateState<T>
-        where T : AggregateState<T, TId>
-        where TId : AggregateId {
-        public TId Id { get; protected init; }
+    public abstract record AggregateState<TId> : Document where TId : AggregateId {
+        public int Version { get; init; } = -1;
     }
 }

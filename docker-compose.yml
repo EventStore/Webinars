@@ -2,21 +2,24 @@ version: '3.7'
 
 services:
 
-  eventstore:
-    container_name: dddeu-eventstore
-    image: eventstore/eventstore
+  esdb:
+    container_name: webinar-esdb
+    image: eventstore/eventstore:latest
     ports:
       - '2113:2113'
       - '1113:1113'
     environment:
-      EVENTSTORE_EXT_HTTP_PORT: 2113
+      EVENTSTORE_INSECURE: 'true'
+      EVENTSTORE_CLUSTER_SIZE: 1
       EVENTSTORE_EXT_TCP_PORT: 1113
+      EVENTSTORE_HTTP_PORT: 2113
+      EVENTSTORE_ENABLE_EXTERNAL_TCP: 'true'
       EVENTSTORE_RUN_PROJECTIONS: all
-      EVENTSTORE_START_STANDARD_PROJECTIONS: 'true'
-      PROJECTION_THREADS: 8
+      EVENTSTORE_START_STANDARD_PROJECTIONS: "true"
+      EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP: "true"
 
   mongo:
-    container_name: dddeu-mongo
+    container_name: webinar-mongo
     image: mongo
     ports:
       - '27017:27017'
@@ -26,4 +29,4 @@ services:
 
 networks:
   default:
-    name: dddeu-network
+    name: webinar-network

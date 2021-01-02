@@ -1,6 +1,6 @@
 using System;
 
-namespace EventSourcing.Application.Bookings {
+namespace Hotel.Bookings.Application.Bookings {
     public static class BookingCommands {
         public record Book(
             string         BookingId,
@@ -14,9 +14,12 @@ namespace EventSourcing.Application.Bookings {
             DateTimeOffset BookedAt
         );
 
-        public class Pay {
-            public string BookingId { get; set; }
-            public bool   Paid      { get; set; }
-        }
+        public record RecordPayment(
+            string         BookingId,
+            double         Amount,
+            string         Currency,
+            string         PaidBy,
+            DateTimeOffset PaidAt
+        );
     }
 }
