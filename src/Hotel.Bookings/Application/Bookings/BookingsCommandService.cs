@@ -29,6 +29,14 @@ namespace Hotel.Bookings.Application.Bookings {
                     cmd.PaidAt
                 )
             );
+            
+            OnExisting<BookingCommands.ApplyDiscount>(
+                cmd => new BookingId(cmd.BookingId),
+                (booking, cmd) => booking.ApplyDiscount(
+                    new Money(cmd.Amount, cmd.Currency),
+                    convertCurrency
+                )
+            );
         }
     }
 }

@@ -21,5 +21,11 @@ namespace Hotel.Bookings.Application.Bookings {
             string         PaidBy,
             DateTimeOffset PaidAt
         );
+
+        public record ApplyDiscount(
+            string BookingId,
+            double Amount,
+            string Currency
+        );
     }
 }

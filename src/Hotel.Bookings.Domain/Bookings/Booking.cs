@@ -6,36 +6,38 @@ using static Hotel.Bookings.Domain.Services;
 namespace Hotel.Bookings.Domain.Bookings {
     public class Booking : Aggregate<BookingId, BookingState> {
         public Booking() => State = new BookingState();
-        
+
         public async Task BookRoom(
-            BookingId                bookingId,
-            string                   guestId,
-            RoomId                   roomId,
-            StayPeriod               period,
-            Money                    price,
-            string                   bookedBy,
-            DateTimeOffset           bookedAt,
+            BookingId       bookingId,
+            string          guestId,
+            RoomId          roomId,
+            StayPeriod      period,
+            Money           price,
+            string          bookedBy,
+            DateTimeOffset  bookedAt,
             IsRoomAvailable isRoomAvailable
         ) {
             EnsureDoesntExist();
             await EnsureRoomAvailable(roomId, period, isRoomAvailable);
 
-            ChangeState(new BookingState {
-                Id          = bookingId.Value,
-                RoomId      = roomId,
-                GuestId     = guestId,
-                Price       = price,
-                Outstanding = price,
-                Period      = period,
-                Paid        = false
-            });
+            ChangeState(
+                new BookingState {
+                    Id          = bookingId.Value,
+                    RoomId      = roomId,
+                    GuestId     = guestId,
+                    Price       = price,
+                    Outstanding = price,
+                    Period      = period,
+                    Paid        = false
+                }
+            );
         }
 
         public void RecordPayment(
-            Money                    paid,
+            Money           paid,
             ConvertCurrency convertCurrency,
-            string                   paidBy,
-            DateTimeOffset           paidAt
+            string          paidBy,
+            DateTimeOffset  paidAt
         ) {
             EnsureExists();
 
@@ -44,10 +46,31 @@ namespace Hotel.Bookings.Domain.Bookings {
                 : convertCurrency(paid, State.Price.Currency);
             var outstanding = State.Outstanding - localPaid;
 
-            ChangeState(State with {
-                Outstanding = outstanding,
-                Paid = outstanding.Amount == 0
-            });
+            ChangeState(
+                State with {
+                    Outstanding = outstanding,
+                    Paid = outstanding.Amount == 0
+                }
+            );
+        }
+
+        public void ApplyDiscount(
+            Money           discount,
+            ConvertCurrency convertCurrency
+        ) {
+            EnsureExists();
+
+            var localDiscountAmount = State.Price.IsSameCurrency(discount)
+                ? discount
+                : convertCurrency(discount, State.Price.Currency);
+            var outstanding = State.Outstanding - localDiscountAmount;
+
+            ChangeState(
+                State with {
+                    Outstanding = outstanding,
+                    Paid = outstanding.Amount == 0
+                }
+            );
         }
 
         static async Task EnsureRoomAvailable(RoomId roomId, StayPeriod period, IsRoomAvailable isRoomAvailable) {
