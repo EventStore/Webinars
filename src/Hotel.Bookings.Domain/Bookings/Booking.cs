@@ -89,7 +89,7 @@ namespace Hotel.Bookings.Domain.Bookings {
             if (!roomAvailable) throw new DomainException("Room not available");
         }
 
-        protected override BookingState When(object evt)
+        public override BookingState When(object evt)
             => evt switch {
                 RoomBooked e =>
                     new BookingState {

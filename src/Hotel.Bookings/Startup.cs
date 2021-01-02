@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using EventSourcing.Lib;
 using EventStore.Client;
@@ -20,15 +21,28 @@ namespace Hotel.Bookings {
 
         public void ConfigureServices(IServiceCollection services) {
             // Infrastructure
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+            
             services.AddSingleton(
                 ConfigureMongo(
                     Configuration["MongoDb:ConnectionString"],
                     Configuration["MongoDb:Database"]
                 )
             );
-            services.AddSingleton<IAggregateStore, MongoAggregateStore>();
+
+            services.AddSingleton(
+                ctx
+                    => ConfigureEventStore(
+                        Configuration["EventStore:ConnectionString"],
+                        ctx.GetService<ILoggerFactory>()
+                    )
+            );
+
+            services.AddSingleton<IAggregateStore, EsDbAggregateStore>();
 
             // Application
+            BookingEventMappings.MapEvents();
+            
             services.AddSingleton<BookingsCommandService>();
 
             // Domain services
@@ -70,16 +84,6 @@ namespace Hotel.Bookings {
         }
 
         static EventStoreClient ConfigureEventStore(string connectionString, ILoggerFactory loggerFactory) {
-            // AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-
-            // services.AddSingleton(
-            //     ctx
-            //         => ConfigureEventStore(
-            //             Configuration["EventStore:ConnectionString"],
-            //             ctx.GetService<ILoggerFactory>()
-            //         )
-            // );
-
             var settings = EventStoreClientSettings.Create(connectionString);
             settings.ConnectionName = "bookingApp";
             settings.LoggerFactory  = loggerFactory;
