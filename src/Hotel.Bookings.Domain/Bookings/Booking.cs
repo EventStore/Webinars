@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using EventSourcing.Lib;
+using static Hotel.Bookings.Domain.Bookings.BookingEvents;
 using static Hotel.Bookings.Domain.Services;
 
 namespace Hotel.Bookings.Domain.Bookings {
@@ -20,16 +21,18 @@ namespace Hotel.Bookings.Domain.Bookings {
             EnsureDoesntExist();
             await EnsureRoomAvailable(roomId, period, isRoomAvailable);
 
-            ChangeState(
-                new BookingState {
-                    Id          = bookingId.Value,
-                    RoomId      = roomId,
-                    GuestId     = guestId,
-                    Price       = price,
-                    Outstanding = price,
-                    Period      = period,
-                    Paid        = false
-                }
+            Apply(
+                new RoomBooked(
+                    bookingId.Value,
+                    roomId.Value,
+                    guestId,
+                    period.CheckIn,
+                    period.CheckOut,
+                    price.Amount,
+                    price.Currency,
+                    bookedBy,
+                    bookedAt
+                )
             );
         }
 
@@ -46,11 +49,16 @@ namespace Hotel.Bookings.Domain.Bookings {
                 : convertCurrency(paid, State.Price.Currency);
             var outstanding = State.Outstanding - localPaid;
 
-            ChangeState(
-                State with {
-                    Outstanding = outstanding,
-                    Paid = outstanding.Amount == 0
-                }
+            Apply(
+                new BookingPaid(
+                    State.Id,
+                    paid.Amount,
+                    paid.Currency,
+                    outstanding.Amount == 0,
+                    outstanding.Amount,
+                    paidBy,
+                    paidAt
+                )
             );
         }
 
@@ -65,11 +73,14 @@ namespace Hotel.Bookings.Domain.Bookings {
                 : convertCurrency(discount, State.Price.Currency);
             var outstanding = State.Outstanding - localDiscountAmount;
 
-            ChangeState(
-                State with {
-                    Outstanding = outstanding,
-                    Paid = outstanding.Amount == 0
-                }
+            Apply(
+                new DiscountApplied(
+                    State.Id,
+                    discount.Amount,
+                    discount.Currency,
+                    outstanding.Amount,
+                    outstanding.Amount == 0
+                )
             );
         }
 
@@ -77,5 +88,30 @@ namespace Hotel.Bookings.Domain.Bookings {
             var roomAvailable = await isRoomAvailable(roomId, period);
             if (!roomAvailable) throw new DomainException("Room not available");
         }
+
+        protected override BookingState When(object evt)
+            => evt switch {
+                RoomBooked e =>
+                    new BookingState {
+                        Id          = e.BookingId,
+                        RoomId      = new RoomId(e.RoomId),
+                        GuestId     = e.GuestId,
+                        Price       = new Money {Amount       = e.Price, Currency       = e.Currency},
+                        Outstanding = new Money {Amount       = e.Price, Currency       = e.Currency},
+                        Period      = new StayPeriod {CheckIn = e.CheckInDate, CheckOut = e.CheckOutDate},
+                        Paid        = false
+                    },
+                BookingPaid e =>
+                    State with {
+                        Outstanding = new Money {Amount = e.Outstanding, Currency = State.Price.Currency},
+                        Paid = e.IsFullyPaid
+                    },
+                DiscountApplied e =>
+                    State with {
+                        Outstanding = new Money {Amount = e.Outstanding, Currency = State.Price.Currency},
+                        Paid = e.IsFullyPaid
+                    },
+                _ => State
+            };
     }
 }

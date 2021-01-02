@@ -8,7 +8,7 @@ namespace Hotel.Bookings.Application.Bookings {
             string         GuestId,
             DateTimeOffset From,
             DateTimeOffset To,
-            double         Price,
+            float          Price,
             string         Currency,
             string         BookedBy,
             DateTimeOffset BookedAt
@@ -16,7 +16,7 @@ namespace Hotel.Bookings.Application.Bookings {
 
         public record RecordPayment(
             string         BookingId,
-            double         Amount,
+            float          Amount,
             string         Currency,
             string         PaidBy,
             DateTimeOffset PaidAt
@@ -24,7 +24,7 @@ namespace Hotel.Bookings.Application.Bookings {
 
         public record ApplyDiscount(
             string BookingId,
-            double Amount,
+            float  Amount,
             string Currency
         );
     }

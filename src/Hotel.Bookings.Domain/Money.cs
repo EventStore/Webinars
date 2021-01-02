@@ -3,14 +3,14 @@ using EventSourcing.Lib;
 
 namespace Hotel.Bookings.Domain {
     public record Money {
-        public double Amount   { get; internal init; }
+        public float  Amount   { get; internal init; }
         public string Currency { get; internal init; }
 
         static readonly string[] SupportedCurrencies = {"USD", "EUR", "GPB"};
 
         internal Money() { }
 
-        public Money(double amount, string currency) {
+        public Money(float amount, string currency) {
             if (!SupportedCurrencies.Contains(currency)) throw new DomainException($"Unsupported currency: {currency}");
 
             Amount   = amount;
