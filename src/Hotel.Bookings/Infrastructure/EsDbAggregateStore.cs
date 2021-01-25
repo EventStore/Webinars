@@ -21,21 +21,22 @@ namespace Hotel.Bookings.Infrastructure {
                 .Select(
                     x => new EventData(
                         Uuid.NewUuid(),
-                        TypeMap.GetTypeName(x.GetType()),
-                        JsonSerializer.SerializeToUtf8Bytes(x)
+                        TypeMap.GetTypeName(x),
+                        JsonSerializer.SerializeToUtf8Bytes(x),
+                        JsonSerializer.SerializeToUtf8Bytes(new {})
                     )
-                );
+                ).ToArray();
 
-            var op = expectNew
-                ? _client.AppendToStreamAsync(stream, StreamState.NoStream, dbEvents, cancellationToken: cancellationToken)
-                : _client.AppendToStreamAsync(
+            if (expectNew) {
+                await _client.AppendToStreamAsync(stream, StreamState.NoStream, dbEvents);
+            }
+            else {
+                await _client.AppendToStreamAsync(
                     stream,
                     StreamRevision.FromInt64(aggregate.State.Version),
-                    dbEvents,
-                    cancellationToken: cancellationToken
+                    dbEvents
                 );
-
-            await op;
+            }
         }
 
         public async Task<T> Load<T, TId, TState>(TId id, CancellationToken cancellationToken)
