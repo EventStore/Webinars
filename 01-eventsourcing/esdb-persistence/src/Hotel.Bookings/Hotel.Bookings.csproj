@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>9</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="EventStore.Client.Grpc.Streams" Version="20.6.1" />
+      <PackageReference Include="Grpc.Net.Client" Version="2.33.1" />
+      <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EventSourcing.Lib\EventSourcing.Lib.csproj" />
+      <ProjectReference Include="..\Hotel.Bookings.Domain\Hotel.Bookings.Domain.csproj" />
+      <ProjectReference Include="..\MongoTools\MongoTools.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Infrastructure\MongoAggregateStore.cs" />
+    </ItemGroup>
+
+</Project>
