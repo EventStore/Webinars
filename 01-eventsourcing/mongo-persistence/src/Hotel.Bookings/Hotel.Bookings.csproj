@@ -18,8 +18,4 @@
       <ProjectReference Include="..\MongoTools\MongoTools.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Remove="Infrastructure\MongoAggregateStore.cs" />
-    </ItemGroup>
-
 </Project>

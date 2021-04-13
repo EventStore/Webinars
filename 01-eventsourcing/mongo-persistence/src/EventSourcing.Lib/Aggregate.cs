@@ -12,10 +12,15 @@ namespace EventSourcing.Lib {
 
         protected void Apply(object evt) {
             _changes.Add(evt);
-            State = When(evt);
+            ChangeState(When(evt));
         }
 
-        public abstract TState When(object evt);
+        protected abstract TState When(object evt);
+
+        protected void ChangeState(TState state)
+            => State = state with {
+                Version = State.Version + 1
+            };
 
         protected void EnsureExists() {
             if (State.Version < 0) throw new DomainException($"{GetType().Name} {State.Id} doesn't exist");
